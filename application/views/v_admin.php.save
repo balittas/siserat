@@ -1,0 +1,668 @@
+<?php
+    $isLogin = $this->session->userdata( 'akunAktif' );
+    if($isLogin==""){
+        redirect(site_url('admin/index'));
+    }
+?>
+
+<!DOCTYPE html>
+<html lang="en" id="home">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Balittas</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="<?php echo base_url();?>/assets/font-awesome-4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="<?php echo base_url();?>/assets/css/bootstrap.min.css" rel="stylesheet">
+    <link href="<?php echo base_url();?>/assets/css/bootstrap.css" rel="stylesheet">
+    <link href="<?php echo base_url();?>/assets/css/style.css" rel="stylesheet">
+    <link href="<?php echo base_url();?>/assets/css/styleadmin.css" rel="stylesheet">
+    <link href="<?php echo base_url();?>/assets/css/simple-sidebar.css" rel="stylesheet">
+    <link href="<?php echo base_url() ?>/assets/img/Logo-Kementerian-Pertanian.png" rel="shortcut icon">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="<?php echo base_url();?>/bootstrap/js/croppie.js"></script>
+    <script src="<?php echo base_url();?>/bootstrap/js/bootstrap.min.js"></script>
+  </head>
+  <body>
+
+    <div class="sidenav" style="padding-top: 10px;">        
+        <a href="#tabelSerat"><i class="glyphicon glyphicon-chevron-right"></i> Data Serat</a>
+        <hr style="border-color: grey;margin:0px 13px 5px 13px;">
+        <a href="#tabelVarietas"><i class="glyphicon glyphicon-chevron-right"></i> Data Varietas</a>
+        <hr style="border-color: grey;margin:0px 13px 5px 13px;">
+        <a href="#tabelLeaflet"><i class="glyphicon glyphicon-chevron-right"></i> Data Leaflet</a>
+        <hr style="border-color: grey;margin:0px 13px 5px 13px;">
+        <a href="#tabelBudidaya"><i class="glyphicon glyphicon-chevron-right"></i> Data Budidaya</a>
+        <hr style="border-color: grey;margin:0px 13px 5px 13px;">
+        <a href="#tabelStokBenih"><i class="glyphicon glyphicon-chevron-right"></i> Data Stok Benih</a>
+        <hr style="border-color: grey;margin:0px 13px 5px 13px;">
+        <a href="#tabelDistribusiBenih"><i class="glyphicon glyphicon-chevron-right"></i> Data Distribusi Benih</a>  
+        <hr style="border-color: grey;margin:0px 13px 5px 13px;">
+        <a href="#tabelAlsin"><i class="glyphicon glyphicon-chevron-right"></i> Data Alat dan Mesin</a>         
+    </div>
+
+    <!-- Data Serat -->
+    <section class="serat" id="tabelSerat" style="padding-top: 50px; margin-top: -70px;">
+      <div class="container">
+        <div class="table table-wrapper">
+          <div class="table-title">
+            <div class="row">
+              <div class="col-sm-6">
+                <h2>Data <b>Serat</b></h2>
+              </div>
+              <div class="col-sm-6">
+                <a href="#tambahserat" class="btn btn-success" data-toggle="modal"><i class="fa fa-plus-square" aria-hidden="true"></i><span>Tambah Data</span></a>            
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive" style="margin: 30px 0px;">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Nama Serat</th>
+                  <th>Deskripsi </th>
+                  <th>File Gambar</th>
+                  <th>Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php 
+                  $no = 1;                                          
+                  foreach ($serat as $row) {    
+                    $deskripsi_cut = ""; 
+                    if (strlen($row['deskripsi_serat']) != 0) {
+                      $deskripsi_cut = substr($row['deskripsi_serat'], 0, 100).' ...';
+                    }                            
+                ?>
+                <tr >
+                  <td><?php echo $no; ?></td>   
+                  <td><?php echo "$row[nama_serat]"; ?></td>                         
+                  <td><?php echo "$deskripsi_cut"; ?></td>
+                  <td><?php echo "$row[gambar]"; ?></td>
+                  <td>
+                    <a href="#tomboleditserat" class="edit" onclick="modal_edit_serat(
+                    '<?php echo $row['id_serat']; ?>',
+                    '<?php echo $row['nama_serat']; ?>',
+                    '<?php echo $row['deskripsi_serat']; ?>',
+                    '<?php echo $row['gambar']; ?>'
+                    );"><i class="fa fa-pencil-square-o" data-toggle="tooltip" title="Edit" aria-hidden="true"></i></a>
+                    <a href="" class="delete" data-toggle="modal" onclick="confirm_modal_serat('<?php echo $row['id_serat']; ?>');"><i class="fa fa-trash-o" data-toggle="tooltip" title="Delete" aria-hidden="true"></i></a>        
+                  </td>
+                </tr>
+                <?php                                 
+                    $no++;
+                  }
+                ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tambah Modal HTML Serat -->
+    <div id="tambahserat" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="font-size: 18px;">Tambah Data Serat</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <form enctype="multipart/form-data" action="<?php echo site_url('/admin/tambahSerat'); ?>" method="post" class="form-horizontal" autocomplete="off">
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Nama Serat</label>
+                <input type="text" name="namaSerat" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Deskripsi</label>
+                <textarea type="text" name="deskripsi" class="form-control" rows="8"></textarea>
+              </div>
+              <div class="form-group" style="padding-bottom: 0px">
+                <label>Upload Gambar</label>
+                <div class="input-group image-preview">
+                  <input type="text" class="form-control image-preview-filename" disabled="disabled" placeholder="400 x 292 piksel">    
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;">
+                      <span class="glyphicon glyphicon-remove"></span> Clear
+                    </button>                                    
+                    <div class="btn btn-default image-preview-input">                                        
+                      <span class="image-preview-input-title">Pilih File</span>
+                      <input type="file" style="width:100px" accept="image/png, image/jpeg, image/gif," name="gambar">     
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-default" data-dismiss="modal" value="Batal">
+              <input type="submit" class="btn btn-success" value="Tambah">
+            </div>
+          </form>              
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Modal HTML Serat-->
+    <div id="tomboleditserat" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="font-size: 18px;">Edit Data Serat</h4>`
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <form enctype="multipart/form-data" action="<?php echo site_url('/admin/editSerat'); ?>" method="post" class="form-horizontal" autocomplete="off">
+            <div class="modal-body">
+              <input hidden id="idSerat" name="idSerat">
+              <div class="form-group">
+                <label>Nama Serat</label>
+                <input type="text" name="namaSerat" id="namaSerat" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Deskripsi</label>
+                <textarea type="text" name="editdeskripsi" id="editdeskripsi" class="form-control" rows="8"required></textarea>
+              </div>
+              <div class="form-group" style="padding-bottom: 0px">
+                <label>Upload Gambar</label>
+                <div class="input-group image-preview">
+                  <input type="text" id="editseratimg" class="form-control image-preview-filename" disabled="disabled">   
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;" onclick="document.getElementById('editgambarserat').click()" style="height: 35px;margin-top: -2px;" class="btn btn-default"> 
+                      <span class="glyphicon glyphicon-remove"></span> Clear
+                    </button>                                    
+                    <div class="btn btn-default image-preview-input">                                        
+                      <span class="image-preview-input-title">Pilih File</span>
+                      <input type="file" id="editgambarserat" name="editgambarserat" style="width:100px" onchange="document.getElementById('editseratimg').value=this.value" accept="image/png, image/jpeg, image/gif" >    
+                    </div>
+                  </span>
+                </div>
+              </div>
+            </div>    
+            <div class="modal-footer">
+              <input type="button" class="btn btn-default" data-dismiss="modal" value="Batal">
+              <input type="submit" class="btn btn-success" value="Simpan">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script>
+        function modal_edit_serat(idSerat,namaSerat,editdeskripsi,editserat)
+        {
+          $('#tomboleditserat').modal('show', {backdrop: 'static'});          
+          document.getElementById('idSerat').value = idSerat;
+          document.getElementById('namaSerat').value = namaSerat;         
+          document.getElementById('editdeskripsi').value = editdeskripsi;    
+          document.getElementById('editseratimg').value = editserat;    
+        }
+    </script>
+
+    <!-- Delete Modal HTML Serat -->
+    <div id="hapusserat" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form>
+            <div class="modal-header">            
+              <h4 class="modal-title" style="font-size: 18px;">Hapus Data Serat</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">          
+              <p>Yakin ingin menghapus data ini?</p>
+              <p class="text-warning"><small></small></p>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-default" data-dismiss="modal" value="Batal">
+              <a href="" id="idhapusserat"><input type="button" class="btn btn-danger" value="Hapus"></a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script>
+        function confirm_modal_serat(delete_url)
+        {
+          $('#hapusserat').modal('show', {backdrop: 'static'});
+          document.getElementById('idhapusserat').setAttribute('href' ,"hapusSerat/"+delete_url);
+        }
+    </script>
+
+    <!-- Data Varietas -->
+    <section class="varietas" id="tabelVarietas" style="padding-top: 50px; margin-top: -120px;">
+      <div class="container">
+        <div class="table table-wrapper">
+          <div class="table-title">
+            <div class="row">
+              <div class="col-sm-2">
+                <h2>Data <b>Varietas</b></h2>
+              </div>
+              <div class="col-sm-2">
+                <h5 style="margin-left: 28px;">Filter by &nbsp :</h5>
+              </div>
+              <div class="col-sm-2" style="padding-top: 0px;">
+                <select class="form-control komoditas" id="jenisKomoditas" name="komoditas" style="margin-left: -77px; width: 170px; height: 35px;" onchange="filterVarietas();">
+                       <!-- <option disabled>Komoditas</option> -->
+                       <option value="Semua Komoditas" selected>Semua Komoditas</option>
+                  <?php
+                    $komoditas = array("Semua Komoditas","Kapas","Kapuk","Kenaf","Rami","Rosela","Sisal","Abaka");
+                    for($i = 1;$i < count($komoditas);$i++){
+                      echo"<option value=$komoditas[$i]> $komoditas[$i] </option>";
+                    }
+                  ?>
+                </select>
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+              </div>
+              <div class="col-sm-2">
+                <a href="#tambahvarietas" class="btn btn-success" data-toggle="modal"><i class="fa fa-plus-square" aria-hidden="true"></i><span class="text-right">Tambah Data</span></a>            
+              </div>
+            </div>
+          </div>
+          <div class="table-responsive" style="margin: 30px 0px;" id="tableKomoditas">
+            <table class="table table-striped table-hover">
+              <thead>
+                <tr>                                
+                  <th>No</th>
+                  <th>Nama Varietas</th>                                
+                  <th>Spesifikasi</th>                              
+                  <th>Tanggal Pelepasan</th>                              
+                  <th>File Gambar</th>
+                  <th>File SK</th>    
+                  <th>URL</th>                            
+                  <th>Tanggal Upload</th>                                
+                  <th>Waktu Upload</th>
+                  <th>Deskripsi</th>  
+                  <th>Aksi</th>                              
+                </tr>
+              </thead>
+              <tbody>
+                <?php 
+                  $no = 1;                                          
+                  foreach ($varietas as $row) {  
+                    $deskripsivar_cut = ""; 
+                    if (strlen($row['deskripsi_varietas']) != 0) {
+                      $deskripsivar_cut = substr($row['deskripsi_varietas'], 0, 50).' ...';
+                    }   
+                    $url_cut = ""; 
+                    if (strlen($row['URLV']) != 0) {
+                      $url_cut = substr($row['URLV'], 0, 5).' ...';
+                    }     
+                ?>
+                <tr >
+                  <?php 
+                    $atr = array();
+                    $ket = array();
+                    $count1 = 0;   
+                    $count2 = 0;                                                                    
+                    foreach ($detail_varietas as $value) {  
+                      if ($row['id_varietas']==$value['id_varietas']) {
+                        $atr[$count1] = $value['nama_atribut'];
+                        $ket[$count2] = $value['detail_value'];                             
+                        $count1++;   
+                        $count2++;                                      
+                      }
+                    }
+                    $idv = $row['id_varietas'];                                     
+                  ?>
+
+                  <td><?php echo $no; ?></td>                                
+                  <td><?php echo "$row[nama_varietas]"; ?></td>                              
+                  <td>
+
+                  <script>                                   
+                    window['atr' + <?php echo $no; ?>] = [
+                      <?php
+                        for ($i=0; $i < $count1-1; $i++) {                                              
+                          echo '"'.$atr[$i].'",';
+                        }
+                        echo '"'.$atr[$count1-1].'"'; 
+                      ?>                                    
+                    ];                                    
+                    window['val' + <?php echo $no; ?>] = [
+                      <?php
+                        for ($i=0; $i < $count2-1; $i++) {                                              
+                          echo '"'.$ket[$i].'",';
+                        }
+                        echo '"'.$ket[$count2-1].'"'; 
+                      ?> 
+                    ];
+                  </script>
+                    <a href="#spesifikasi" style="font-weight: unset;" onclick="modal_detail(
+                      '<?php echo "$idv"; ?>',
+                      window['atr' + <?php echo $no; ?>],
+                      window['val' + <?php echo $no; ?>]
+                      )">                                    
+                      <button class="btn btn-warning">Spesifikasi</button>
+                    </a>
+                  </td>
+                  <?php
+                      $namasrt = $row['nama_serat'];
+                      $idvar = $row['id_varietas'];
+                      $namavar = $row['nama_varietas'];
+                      $tgl = $row['tanggal_pelepasan'];
+                      $file1 = $row['file_SK'];
+                      $urlvarietas = $row['URLV'];
+                      $file2 = $row['file_gambar'];
+                      $desk = $row['deskripsi_varietas'];
+                   ?>       
+                  <td><?php echo $row['tanggal_pelepasan']; ?></td>                         
+                  <td><?php echo $row['file_gambar']; ?></td>
+                  <td><?php echo $row['file_SK']; ?></td>
+                  <td><?php echo $url_cut; ?></td>
+                  <td><?php echo $row['tanggal_upload']; ?></td>
+                  <td><?php echo $row['waktu_upload']; ?></td>
+                  <td><?php echo $deskripsivar_cut; ?></td>
+                  <td>
+                    <a href="#tomboleditvar" class="edit" onclick="modal_edit_var('<?php echo "$namasrt"; ?>','<?php echo "$idvar"; ?>','<?php echo "$namavar"; ?>','<?php echo "$tgl"; ?>','<?php echo "$file1"; ?>','<?php echo "$urlvarietas"; ?>','<?php echo "$file2"; ?>','<?php echo "$desk"; ?>');">
+                        <i class="fa fa-pencil-square-o" data-toggle="tooltip" title="Edit" aria-hidden="true"></i>
+                    </a>
+                    <a href="" class="delete" data-toggle="modal" onclick="confirm_modal_varietas('<?php echo $row['id_varietas']; ?>');"><i class="fa fa-trash-o" data-toggle="tooltip" title="Delete" aria-hidden="true"></i></a> 
+                  </td>
+                </tr>
+                <?php                                 
+                    $no++;
+                  }
+                ?>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div id="spesifikasi" class="modal fade">
+        <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h4 class="modal-title" style="font-size: 18px;">Data Spesifikasi Varietas</h4>
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white;">&times;</button>
+              </div>
+                 <form action="<?php echo site_url('/admin/editDesVarietas'); ?>" method="post" class="form-horizontal">
+                    <input hidden id="idSpe" name="idVarietasss">
+                    <input hidden id="jumlahAtr" name="jumlahAtr">
+                    <div class="modal-body">                                         
+                        <div class="form-group"> 
+                            <div class="text-center">                                
+                                <label>Spesifikasi</label>                            
+                            </div>
+                            <table style="margin-left: 0px;" id="tableDetail">                              
+                              <!--elemet sebagai target append-->
+                              <tbody id="detail">
+                              </tbody>                              
+                          </table>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <input type="button" class="btn btn-default" data-dismiss="modal" value="Batal">
+                        <input type="submit" class="btn btn-success" value="Simpan">
+                    </div>
+                </form>              
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var jumlahTr = 0;
+        function modal_detail(id,atr,ket)
+        {
+            var itemlist = document.getElementById('tableDetail');
+            if (jumlahTr > 0) {               
+                $("#tableDetail tr").remove();
+                jumlahTr = 0;
+            } 
+          $('#spesifikasi').modal('show', {backdrop: 'static'});          
+          // alert(atr.length);
+          document.getElementById('jumlahAtr').value = atr.length;
+          document.getElementById('idSpe').value = id;
+            for (var i = 0; i <atr.length; i++) {              
+//                menentukan target append
+//                membuat element
+                var row = document.createElement('tr');
+                var atributjs = document.createElement('td');
+                var valuejs = document.createElement('td');
+                var aksijs = document.createElement('td');
+//                meng append element
+                itemlist.appendChild(row);
+                row.appendChild(atributjs);
+                row.appendChild(valuejs);
+                row.appendChild(aksijs);                          
+//                membuat element input
+                var atrjs = document.createElement('input');
+                atrjs.setAttribute('name', 'atribut'+ i);
+                atrjs.setAttribute('value', ' '+atr[i]);
+                atrjs.setAttribute('type', 'text');
+                atrjs.setAttribute('placeholder', ' Atribut');
+                atrjs.setAttribute('readonly', '');
+                atrjs.setAttribute('style', 'margin-top : 10px;width: 280px;height: 35px;');
+                var valjs = document.createElement('input');
+                valjs.setAttribute('name', 'value'+ i);
+                valjs.setAttribute('value', ' '+ket[i]);
+                valjs.setAttribute('type', 'text');
+                valjs.setAttribute('placeholder', ' Value');
+                valjs.setAttribute('style', 'margin : 10px 10px 0px 10px;width: 280px;height: 35px;');
+                var hapus = document.createElement('span');
+//                meng append element input
+                atributjs.appendChild(atrjs);                
+                valuejs.appendChild(valjs);
+                hapus.innerHTML = '<button class="btn btn-small btn-warning" style="margin-top:10px;width: 5px;height: 35px;"><i class="fa fa-pencil 0"></i></button>';
+//                membuat aksi delete element
+                hapus.onclick = function () {
+                    row.parentNode.removeChild(row);
+                }
+                jumlahTr++;
+            }
+        }
+    </script>
+
+    <!-- Edit Modal HTML Varietas-->
+    <div id="tomboleditvar" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="font-size: 18px;">Edit Data Varietas</h4>`
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          </div>
+          <form enctype="multipart/form-data" action="<?php echo site_url('admin/editVarietas'); ?>" method="post" class="form-horizontal" autocomplete="off">
+            <div class="modal-body">
+              <input id="idSerat_id" name="idSerat" hidden>
+              <input id="idVarietas_id" name="idVarietass" hidden>
+              <div class="form-group">
+              <label>Nama Varietas</label>
+                <input type="text" id="namaVarietas_id" name="namaVarietas" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Komoditas</label>
+                <input type="text" id="namaSerat_id" name="namaSerat" class="form-control" disabled>
+              </div>
+              <div class="form-group">
+                <label>Tanggal Pelepasan</label>       
+                <input type="date" id="tanggal_id" name="tanggalPelepasan" class="form-control" required>
+              </div> 
+              <div class="form-group">
+                <label>Deskripsi</label>
+                <textarea type="text" id="deskripsi_id" name="deskripsiv" class="form-control" rows="8"></textarea>
+              </div>
+              <div class="form-group" style="padding-bottom: 0px">
+                <label>Upload Gambar</label>
+                <div class="input-group image-preview">
+                  <input id="filegambar_id" type="text" style="padding-left: 10px;" class="form-control image-preview-filename" disabled="disabled" placeholder="324 x 210 piksel"> 
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;">
+                      <span class="glyphicon glyphicon-remove"></span> Clear
+                    </button>                                    
+                    <div class="btn btn-default image-preview-input">                                        
+                      <span class="image-preview-input-title">Pilih File</span>
+                      <input type="file" style="width:100px" accept="image/png, image/jpeg, image/gif," name="gambar_v">            
+                    </div>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group" style="padding-bottom: 0px">
+                <label>Upload SK</label>
+                <div class="input-group">                                
+                  <input type="file" id="picked" name="updatesk" style="display:none" onchange="document.getElementById('filesk_id').value=this.value" accept="application/pdf">
+                  <input type="text" id="filesk_id" style="width: 468px;height: 35px; padding-left: 10px;" disabled="disable">
+                  <input type="button" value="Pilih File" onclick="document.getElementById('picked').click()" style="height: 35px;margin-top: -2px;" class="btn btn-default">
+                </div>
+              </div>
+              <div class="form-group"> 
+                <label>Link URL</label>
+                <input type="text" id="urleditvar_id" name="urlvar" class="form-control">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-default" data-dismiss="modal" value="Batal">
+              <input type="submit" class="btn btn-success" value="Simpan">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+     <script>
+        function modal_edit_var(namaSerat,idvarietas,namaVarietas,tglPelepasan,filesk,urleditvarietas,filegambar,deskripsivarietas) {
+          // alert(namaSerat+" "+idvarietas+" "+namaVarietas+" "+tglPelepasan+" "+filesk+" "+filegambar+" "+deskripsivarietas);
+          $('#tomboleditvar').modal('show', {backdrop: 'static'});
+          document.getElementById('namaSerat_id').value = namaSerat;
+          document.getElementById('idVarietas_id').value = idvarietas;
+          document.getElementById('namaVarietas_id').value = namaVarietas;
+          document.getElementById('tanggal_id').value = tglPelepasan;
+          document.getElementById('filesk_id').value = filesk;
+          document.getElementById('urleditvar_id').value = urleditvarietas;
+          document.getElementById('filegambar_id').value = filegambar;
+          document.getElementById('deskripsi_id').value = deskripsivarietas;  
+        }        
+    </script>
+
+    <!-- Delete Modal HTML Varietas -->
+    <div id="hapusvarietas" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <form>
+            <div class="modal-header">            
+              <h4 class="modal-title" style="font-size: 18px;">Hapus Data Varietas</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            </div>
+            <div class="modal-body">          
+              <p>Yakin ingin menghapus data ini?</p>
+              <p class="text-warning"><small></small></p>
+            </div>
+            <div class="modal-footer">
+              <input type="button" class="btn btn-default" data-dismiss="modal" value="Batal">
+              <a href="" id="idhapusvarietas"><input type="button" class="btn btn-danger" value="Hapus"></a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <script>
+        function confirm_modal_varietas(delete_url)
+        {
+          $('#hapusvarietas').modal('show', {backdrop: 'static'});
+          document.getElementById('idhapusvarietas').setAttribute('href' ,"hapusVarietas/"+delete_url);
+        }
+    </script>
+
+    <!-- Filter Varietas -->
+    <script>
+      function filterVarietas(){
+        var komoditas = $("#jenisKomoditas").val();
+        $.ajax({
+            type:"POST",
+            url: "../admin/filterVarietas",
+            data: "serattt=" + komoditas,
+            dataType : "html",
+            success:function(msg){
+                $("#tableKomoditas").html(msg);                
+            },
+            error:function(){
+              alert("Search failed");
+            }
+        });
+      }
+    </script>
+
+    <!-- Tambah Modal HTML Varietas -->
+    <div id="tambahvarietas" class="modal fade">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title" style="font-size: 18px;">Tambah Data Varietas</h4>
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white;">&times;</button>
+          </div>
+          <form enctype="multipart/form-data" action="<?php echo site_url('admin/tambahVarietas'); ?>" method="post" class="form-horizontal" autocomplete="off">
+            <div class="modal-body">
+              <div class="form-group">
+                <label>Nama Varietas</label>
+                <input type="text" name="namaVarietas" class="form-control" required>
+              </div>
+              <div class="form-group">
+                <label>Komoditas</label>
+                <select class="form-control" name="idjenisKomoditas">
+                  <option value="S0002">Kapas</option>
+                  <option value="S0003">Kapuk</option>
+                  <option value="S0004">Kenaf</option>
+                  <option value="S0005">Rami</option>
+                  <option value="S0006">Rosela</option>
+                  <option value="S0010">Sisal</option>
+                  <option value="S0011">Abaka</option>
+                </select>    
+              </div>
+              <div class="form-group">
+                <label>Tanggal Pelepasan</label>       
+                <input type="date" name="tanggalPelepasanvar" class="form-control" required>
+              </div> 
+              <div class="form-group">
+                <label>Deskripsi</label>
+                <textarea type="text" name="deskripsivar" class="form-control" rows="8"></textarea>
+              </div>
+              <div class="form-group" style="padding-bottom: 0px">
+                <label>Upload Gambar</label>
+                <div class="input-group image-preview">
+                  <input type="text" style="padding-left: 10px;" class="form-control image-preview-filename" disabled="disabled" placeholder="324 x 210 piksel"> 
+                  <span class="input-group-btn">
+                    <button type="button" class="btn btn-default image-preview-clear" style="display:none;">
+                      <span class="glyphicon glyphicon-remove"></span> Clear
+                    </button>                                    
+                    <div class="btn btn-default image-preview-input">                                        
+                      <span class="image-preview-input-title">Pilih File</span>
+                      <input type="file" style="width:100px" accept="image/png, image/jpeg, image/gif," name="gambarvar">
+                    </div>
+                  </span>
+                </div>
+              </div>
+              <div class="form-group" style="padding-bottom: 0px">
+                <label>Upload SK</label>
+                <div class="input-group">                                
+                  <input type="file" id="pickedsk" name="tambahsk" style="display:none" onchange="document.getElementById('filename').value=this.value" accept="application/pdf">
+                  <input type="text" id="filename" style="width: 468px;height: 35px; padding-left: 10px;" placeholder="" disabled="disable">
+                  <input type="button" value="Pilih File" onclick="document.getElementById('pickedsk').click()" style="height: 35px;margin-top: -2px;" class="btn btn-default">
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Link URL (bila ada)</label>
+                <input type="text" name="linkurlvarietas" class="form-control">
+              </div>
+              <div class="form-group"> 
+                <label>Spesifikasi</label>   
+                <table style="margin-left: 0px;">
+                  <thead style="background-color: none;">
+                    <tr>
+                      <th style="font-weight: unset;">Atribut</th>
+                      <th style="font-weight: unset;padding-left: 10px;">Value</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+
+                  <!--elemet sebagai target append-->
+                  <tbody id="itemlist">
+                    <tr>
+                      <td><input list="daftarAtribut" id="atribut0" name="atribut0" type="text" style="border-radius: 0px;width: 224px; height: 35px;"></td>
+                      <td><input name="value0" class="" type="text" style="border-radius: 0px;margin:0px 10px;width: 224px;height: 35px;"></td>
+                      <td></td>
+                    </tr> 
+                  </tbody>
